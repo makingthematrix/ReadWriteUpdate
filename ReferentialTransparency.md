@@ -105,7 +105,7 @@ import scala.jdk.CollectionConverters.*
 import cats.effect.IO
 
 def read(path: Path): IO[List[String]] =
-  IO { Files.readAllLines(path).asScala.toList }
+  IO.blocking { Files.readAllLines(path).asScala.toList }
 ```
 
 That's it: all we need to do is to wrap our file-reading logic in the IO monad. Now, when we call read, the file will not be read **yet**. Instead, the file-reading logic will be added to the scenario held in the monad. After we build the whole scenario, it will be executed only when we pass the monad to Cats Effect.
@@ -127,7 +127,7 @@ The next step will be to ask the user for the number with which we will update t
 val askForUpdate: IO[Int] =
   for {
     _      <- IO.println("By how much should I update the age?")
-    answer <- IO(scala.io.StdIn.readLine())
+    answer <- IO.blocking(scala.io.StdIn.readLine())
   } yield answer.toInt
 ```
 

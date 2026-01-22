@@ -24,21 +24,18 @@ The foundation version using straightforward, idiomatic Scala.
 - **Focus**: Basic Scala features (objects, immutability, higher-order functions)
 - **Execution**: Sequential, eager evaluation
 - **Key Concepts**: Simple method calls, direct side effects
-- **Best For**: Understanding basic Scala syntax and program structure
 
 #### **LazyScalaCSVVersion.scala**
 Demonstrates lazy evaluation and external library integration.
 - **Focus**: `lazy val` for deferred computation, scala-csv library
 - **Execution**: Conditional—file read only if needed
 - **Key Concepts**: Lazy evaluation, CSV library usage, resource optimization
-- **Best For**: Understanding lazy evaluation and working with external libraries
 
 #### **CatsEffectVersion.scala**
 Pure functional programming with referential transparency using Cats Effect.
 - **Focus**: IO monad, effect system, pure functions
 - **Execution**: Deferred—operations described, not executed until runtime
 - **Key Concepts**: Referential transparency, IO monad, separation of description from execution
-- **Best For**: Learning functional effect systems and pure FP
 
 ### Dependency Injection Versions
 
@@ -47,29 +44,24 @@ Manual dependency injection using function parameters.
 - **Focus**: Testability through function parameter injection
 - **Execution**: Sequential with injected I/O operations
 - **Key Concepts**: Higher-order functions, manual DI, testing with mocks
-- **Best For**: Understanding basic dependency injection without frameworks
 
 #### **DIVersion.scala**
 Framework-assisted dependency injection using MacWire.
 - **Focus**: Trait-based DI with compile-time wiring
 - **Execution**: Sequential with trait-based abstraction
 - **Key Concepts**: Traits as contracts, MacWire `wire[]` macro, OOP-style DI
-- **Best For**: Learning framework-assisted dependency injection
 
 #### **GivenUsingVersion.scala**
 Scala 3's implicit context parameters for DI.
 - **Focus**: `given`/`using` syntax for implicit dependency resolution
 - **Execution**: Sequential with compiler-resolved dependencies
 - **Key Concepts**: Context parameters, implicit resolution, Scala 3 features
-- **Best For**: Understanding Scala 3's modern approach to implicits
 
 #### **CapabilitiesVersion.scala** ⚠️ Experimental
 Capability-based programming with context functions.
 - **Focus**: Fine-grained capabilities, capture checking, `?->` syntax
 - **Execution**: Sequential with explicit capability requirements
 - **Key Concepts**: Context functions, capability-based security, type-level effects
-- **Best For**: Exploring cutting-edge Scala 3 experimental features
-- **Note**: Requires `-experimental` and `-language:experimental.captureChecking` flags
 
 ### Concurrency Versions
 
@@ -80,22 +72,18 @@ Two variants demonstrating Future-based concurrency.
 - **Focus**: Parallel execution, async/await patterns, ExecutionContext
 - **Execution**: File reading and user input happen in parallel
 - **Key Concepts**: `Future`, `Await`, thread pools, concurrent I/O
-- **Best For**: Learning Scala's standard async programming model
 
 #### **PromiseVersion.scala**
 Manual Future completion with Promise.
 - **Focus**: Promise for explicit Future control
 - **Execution**: Similar to Future but with manual completion
 - **Key Concepts**: `Promise`, manual async control, delegation pattern
-- **Best For**: Understanding the write-side of Futures and complex async scenarios
 
 #### **PekkoVersion.scala** 
-Actor Model implementation using Apache Pekko (formerly Akka).
+Actor Model implementation using Apache Pekko.
 - **Focus**: Actor-based concurrency, message passing
 - **Execution**: Three independent actors communicating via messages
 - **Key Concepts**: Actor Model, message protocols, asynchronous coordination
-- **Best For**: Learning actor-based systems and message-driven architecture
-- **Actors**: PekkoSystem (coordinator), ReadWriteActor (file I/O), UpdateActor (user input)
 
 ### Special: Educational Supplement
 
@@ -108,17 +96,6 @@ A minimal Future implementation showing how futures work under the hood.
     - Callback registration and execution
     - Completion state management
     - Try-based result handling
-- **What It Shows**:
-  ```scala
-  class CustomFuture[T] {
-    private var value: Option[Try[T]] = None
-    private var onCompleted: List[Try[T] => Unit] = Nil
-    
-    def onComplete(f: Try[T] => Unit): Unit = /* ... */
-    def isCompleted: Boolean = value.isDefined
-  }
-  ```
-- **Best For**: Understanding how Scala's standard `Future` works internally
 - **Compare With**: `FutureVersion` and `PromiseVersion` to see how the concepts apply
 
 ## Learning Path
@@ -135,7 +112,7 @@ A minimal Future implementation showing how futures work under the hood.
 8. **Concurrency**: `FutureVersion.scala` - Standard async patterns
 9. **Advanced Async**: `PromiseVersion.scala` - Manual control
 10. **Actor Model**: `PekkoVersion.scala` - Message-driven concurrency
-11. **Experimental**: `CapabilitiesVersion.scala` - Cutting-edge features (optional)
+11. **Capabilities**: `CapabilitiesVersion.scala` - Context-based effects
 
 
 ## Testing

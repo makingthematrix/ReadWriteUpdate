@@ -61,8 +61,8 @@ object CapabilitiesVersion {
    * Context function wrapper for reading lines.
    *
    * **Why Wrap It?**
-   * The context function takes an instance of `ReadLines` as an implicit parameter, so its name doesn't need to be
-   * be used in the function calling this one.
+   * The context function takes an instance of `ReadLines` as an implicit parameter,
+   * so its name doesn't need to be used in the function calling this one.
    *
    * @param path the file path to read from
    * @return a context function that needs ReadLines capability to produce List[String]

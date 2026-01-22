@@ -115,14 +115,15 @@ object CatsEffectVersion extends IOApp.Simple {
   /**
    * Creates an IO that describes reading all lines from a file.
    *
-   * IO constructor takes a by-name parameter (=> A). The code inside { } is NOT executed now.
-   * It's captured and will be executed later
+   * IO.blocking takes a by-name parameter (=> A). `.blocking` gives Cats Effect a hint that the operation is blocking
+   * and should be executed on a separate thread.
+   * The code inside { } is NOT executed now. It's captured and will be executed later.
    *
    * @param path the file path to read from
    * @return IO[List[String]] A description of reading the file
    */
   private def readLines(path: Path): IO[List[String]] =
-    IO { Files.readAllLines(path).asScala.toList }
+    IO.blocking { Files.readAllLines(path).asScala.toList }
 
   /**
    * An IO that describes prompting the user for input and parsing it to an Int.
@@ -132,7 +133,7 @@ object CatsEffectVersion extends IOApp.Simple {
   private val askForUpdate: IO[Int] =
     for {
       _      <- IO.print("By how much should I update the age? ")
-      answer <- IO(scala.io.StdIn.readLine())
+      answer <- IO.blocking(scala.io.StdIn.readLine())
     } yield answer.toInt
 
   /**
