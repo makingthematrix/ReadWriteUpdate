@@ -1,5 +1,5 @@
 
-val _scalaVersion = "3.8.0-RC6"
+val _scalaVersion = "3.8.2"
 
 ThisBuild / version := "0.1.0"
 
