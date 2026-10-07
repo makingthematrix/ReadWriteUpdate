@@ -10,29 +10,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
  * PekkoVersion demonstrates the Actor Model for concurrent, message-driven programming using Apache Pekko.
  * It splits the sequential logic of DefaultVersion into independent actors that communicate via messages.
  *
- * **Key Differences from DefaultVersion:**
- *  - **Actor-Based Concurrency**: Three separate actors (PekkoSystem, ReadWriteActor, UpdateActor) instead of one sequential flow
- *  - **Message Passing**: Actors communicate via immutable messages, not direct method calls
- *  - **Asynchronous Coordination**: Operations happen independently; coordinator waits for responses
- *  - **State Isolation**: Each actor maintains its own private state
- *  - **Event-Driven**: Logic triggered by receiving messages, not sequential execution
- *
- * **What is the Actor Model?**
- * The Actor Model is a concurrency paradigm where:
- *  - **Actors** are independent units of computation with private state
- *  - **Messages** are the only way actors communicate (no shared memory)
- *  - **Mailboxes** queue incoming messages for each actor
- *  - **Asynchronous** message sending (fire-and-forget, non-blocking)
- *  - **Location transparency**: actors can be local or distributed
- *
- * **Architecture Overview:**
  * {{{
- * PekkoSystem (Coordinator)
- *     |
- *     +---> ReadWriteActor (handles file I/O)
- *     |
- *     +---> UpdateActor (handles user input)
- * 
  * Communication flow:
  * 1. main() creates PekkoSystem, sends Start message
  * 2. PekkoSystem creates ReadWriteActor and UpdateActor
@@ -45,36 +23,6 @@ import scala.concurrent.duration.{Duration, DurationInt}
  * 9. ReadWriteActor responds with WriteOk
  * 10. PekkoSystem sends GoodBye to actors and schedules Shutdown
  * }}}
- *
- *
- * **Key Scala Features Demonstrated:**
- *  - **Enums**: Message protocol defined with Scala 3 enum
- *  - **Pattern Matching**: onMessage methods use exhaustive pattern matching
- *  - **Mutable State**: Each actor has private mutable state (isolated, thread-safe)
- *
- * **Why Use the Actor Model?**
- *  - **Concurrency without threads**: Actors handle messages sequentially, eliminating race conditions
- *  - **Scalability**: Can easily add more actors or distribute across machines
- *  - **Resilience**: Actor supervision can restart failed actors
- *  - **Decoupling**: Actors know nothing about each other except message protocols
- *
- * **Trade-offs:**
- *  - **Complexity**: Much more complex than sequential code
- *  - **Debugging**: Harder to trace execution flow across actors
- *  - **Message overhead**: Creating and sending messages has cost
- *  - **Coordination**: Must explicitly handle asynchronous responses
- *
- * **When to Use Actor Model?**
- *  - **Highly concurrent systems**: Many independent operations
- *  - **Distributed systems**: Need location transparency
- *  - **Event-driven architecture**: Natural fit for event streams
- *  - **Fault tolerance**: Need supervision and recovery
- *
- * **Learning Path:**
- * Understand DefaultVersion first, then study:
- *  - FutureVersion (simple async)
- *  - PromiseVersion (manual async control)
- *  - Then tackle PekkoVersion (full actor model)
  */
 object PekkoVersion {
   /**
@@ -100,13 +48,6 @@ object PekkoVersion {
   /**
    * PekkoSystem is the coordinator actor that orchestrates the read-update-write workflow.
    *
-   * **Actor Responsibilities:**
-   *  - Create and manage ReadWriteActor and UpdateActor
-   *  - Coordinate message flow between actors
-   *  - Maintain program state (protagonists list, update value n)
-   *  - Trigger update logic when both responses received
-   *  - Handle system lifecycle (startup, shutdown)
-   *
    * @param context ActorContext provides API for actor operations (logging, spawning, etc.)
    * @param timer TimerScheduler for scheduling delayed messages (used for shutdown)
    */
@@ -116,31 +57,12 @@ object PekkoVersion {
 
     /**
      * References to child actors, stored as Option to handle initialization timing.
-     *
-     * **Why Option?**
-     * {{{
-     * private var readWriteActor = Option.empty[ActorRef[Message]]
-     * // Initially empty (None)
-     * // Set when actor is created (Some(actorRef))
-     * // Allows safe operations: readWriteActor.foreach(_ ! message)
-     * }}}
      */
     private var readWriteActor = Option.empty[ActorRef[Message]]
     private var updateActor = Option.empty[ActorRef[Message]]
 
     /**
      * Program state accumulated from actor responses.
-     *
-     * **Coordination Pattern:**
-     * {{{
-     * private var protagonists = List.empty[Protagonist]  // From ReadWriteActor
-     * private var n = 0                                   // From UpdateActor
-     * 
-     * // When both are ready, trigger update:
-     * if (protagonists.nonEmpty && n != 0) {
-     *   checkAndUpdateAge()
-     * }
-     * }}}
      */
     private var protagonists = List.empty[Protagonist]
     private var n = 0
@@ -169,29 +91,8 @@ object PekkoVersion {
     }
 
     /**
-     * Message handler — the heart of the actor.
-     *
-     * **Actor Message Processing:**
-     * Every message sent to this actor arrives here. The actor processes one message at a time,
-     * guaranteeing thread safety of its mutable state.
-     *
-     * **Pattern Matching with Guards:**
-     * {{{
-     * case GreetOk(ref) if readWriteActor.contains(ref) =>
-     *   // Guard: only match if ref is the ReadWriteActor
-     *   // Distinguishes between GreetOk from different actors
-     * 
-     * case GreetOk(ref) if updateActor.contains(ref) =>
-     *   // Guard: only match if ref is the UpdateActor
-     *   // Same message type, different handling
-     * }}}
-     *
-     * **Behavior Return Values:**
-     * {{{
-     * Behaviors.same     // Continue with current behavior
-     * Behaviors.stopped  // Terminate this actor
-     * // Could also return different behavior for state machines
-     * }}}
+     * Message handler — the heart of the actor. Every message sent to this actor arrives here.
+     * The actor processes one message at a time, guaranteeing thread safety of its mutable state.
      *
      * @param msg The message to process
      * @return The behavior to adopt after processing (usually Behaviors.same)
@@ -250,16 +151,6 @@ object PekkoVersion {
   /**
    * Factory for creating the PekkoSystem actor as the root of the actor system.
    *
-   * **Understanding the Layers:**
-   *  - `Behaviors.withTimers`: Provides timer capability for delayed messages
-   *  - `Behaviors.setup`: Provides context when actor is created
-   *  - `new PekkoSystem(...)`: Creates the actual actor instance
-   *  - `ActorSystem(...)`: Creates the actor system with this as root actor
-   *
-   * **Why This Pattern?**
-   * Pekko uses behavior-based construction to ensure actors are properly initialized
-   * with all necessary capabilities (context, timers, etc.) before they start processing messages.
-   *
    * @return ActorSystem[Message] The actor system with PekkoSystem as root
    */
   object PekkoSystem {
@@ -273,16 +164,6 @@ object PekkoVersion {
 
   /**
    * Actor responsible for file I/O operations (reading and writing the CSV file).
-   *
-   * **Separation of Concerns:**
-   * In DefaultVersion, file I/O happens in main(). Here, it's delegated to a specialized actor.
-   * This follows the Actor Model principle: one actor, one responsibility.
-   *
-   * **Actor Responsibilities:**
-   *  - Read file when requested (ReadRequest → ReadAnswer)
-   *  - Write file when requested (WriteRequest → WriteOk)
-   *  - Maintain reference to coordinator (mainActorRef)
-   *  - Terminate gracefully when asked (GoodBye)
    *
    * @param context ActorContext provides API for actor operations (logging, spawning, etc.)
    */
@@ -328,14 +209,6 @@ object PekkoVersion {
 
   /**
    * Companion object for ReadWriteActor: defines actor creation logic and file path.
-   *
-   * **Object Responsibilities:**
-   *  - Define actor spawning logic (ReadWriteActor.apply())
-   *  - Store constant file path
-   *
-   * **Why Companion Object?**
-   * Provides encapsulation for the actor's initialization and configuration,
-   * keeping it separate from the actor's behavior.
    */
   object ReadWriteActor {
     private val FilePath: Path = Paths.get("resources/protagonists.csv")
@@ -348,15 +221,6 @@ object PekkoVersion {
 
   /**
    * Actor responsible for asking the user for an update value.
-   *
-   * **Actor Responsibilities:**
-   *  - Ask user for integer input (UpdateRequest → UpdateAnswer)
-   *  - Maintain reference to coordinator (mainActorRef)
-   *  - Terminate gracefully when asked (GoodBye)
-   *
-   * **Why Separate Actor for User Input?**
-   * User input blocks! We don't want to block the coordinator.
-   * By delegating to UpdateActor, we keep the coordinator responsive.
    *
    * @param context ActorContext provides API for actor operations (logging, spawning, etc.)
    */
@@ -405,12 +269,6 @@ object PekkoVersion {
 
   /**
    * Main entry point for the PekkoVersion application.
-   *
-   * **Responsibilities:**
-   *  - Create the ActorSystem (PekkoVersion.PekkoSystem())
-   *  - Send the initial Start message
-   *  - Await termination to keep the application alive
-   *  - Print start and complete messages
    *
    * **Why Await Termination?**
    * Without Await.result(), main() would exit immediately after sending Start,

@@ -5,48 +5,7 @@ import scala.jdk.CollectionConverters.*
  * CapabilitiesVersion demonstrates Scala 3's experimental capture checking and context functions.
  * This version uses the `?->` syntax (context functions) to require capabilities as implicit evidence,
  * representing a cutting-edge approach to dependency injection and effect tracking.
- *
- * **Key Differences from DefaultVersion:**
- *  - **Context Functions (`?->`)**: Methods return functions that require capabilities as context
- *  - **Capability-Based Security**: Each operation explicitly declares what capabilities it needs
- *  - **Compile-Time Effect Tracking**: The type system tracks which effects each function requires
- *  - **Granular Permissions**: Instead of one big trait, separate capabilities for each operation
- *
- * **Key Differences from GivenUsingVersion:**
- *  - **Multiple Context Parameters**: Can require multiple capabilities in one function
- *  - **Context Functions vs. Using Parameters**: `?->` instead of `using` parameters
- *  - **Function-Level Granularity**: Each helper function declares its own needed capabilities
- *  - **No Trait Grouping**: Capabilities are separate traits, not one umbrella trait
- *
- * **What is a Context Function?**
- * {{{
- * // Regular function:
- * def readLines(path: Path): List[String] = ...
- * 
- * // Context function (this version):
- * def readLines(path: Path): ReadLines ?-> List[String] = { r ?=> r.readLines(path) }
- * //                          ^^^^^^^^^^^^^^^^^^^^^^^^
- * //                          This is a context function type
- * //                          Means: "returns a function that needs ReadLines capability
- * }}}
- *
- * Instead of one big interface with all methods (like GivenUsingVersion's trait), we have:
- *  - **ReadLines**: Capability to read from files
- *  - **ReadNumber**: Capability to read user input
- *  - **Print**: Capability to print to console
- *  - **WriteLines**: Capability to write to files
- *
- * Each function declares exactly which capabilities it needs.
- *
- * **Why Separate Capabilities?**
- *  - **Principle of Least Privilege**: Functions only get the capabilities they actually need
- *  - **Clearer Dependencies**: Type signatures show exactly what effects are performed
- *  - **Easier Testing**: Mock only the capabilities a specific function uses
- *
- * **Trade-offs:**
- *  - **Verbose types**: Function signatures can get long with many capabilities
- *  - **Learning curve**: Most complex DI pattern in this codebase
- */
+*/
 object CapabilitiesVersion {
   private val FilePath = Path.of("resources/protagonists.csv")
 
@@ -59,8 +18,6 @@ object CapabilitiesVersion {
 
   /**
    * Context function wrapper for reading lines.
-   *
-   * **Why Wrap It?**
    * The context function takes an instance of `ReadLines` as an implicit parameter,
    * so its name doesn't need to be used in the function calling this one.
    *
@@ -118,20 +75,6 @@ object CapabilitiesVersion {
 
   /**
    * Prompts the user for an age update value with error handling.
-   *
-   * **Multiple Capabilities Required:**
-   * {{{
-   * (Print, ReadNumber) ?-> Int
-   * // Reads as: "Given Print AND ReadNumber capabilities, produce an Int"
-   * }}}
-   *
-   * **Why Two Capabilities?**
-   * This function needs to:
-   *  1. Print a prompt (needs `Print`)
-   *  2. Read user input (needs `ReadNumber`)
-   *  3. Handle invalid input by printing error (needs `Print` again)
-   *
-   * @return a context function requiring Print and ReadNumber capabilities
    */
   private val askForUpdate: (Print, ReadNumber) ?-> Int = {
     printLine("By how much should I update the age? ")
@@ -164,19 +107,6 @@ object CapabilitiesVersion {
 
   /**
    * The main program logic orchestrating the read-update-write workflow.
-   *
-   * **Declared Capabilities:**
-   * This `val` has type `RunType`, which expands to:
-   * {{{
-   * (ReadLines, ReadNumber, Print, WriteLines) ?-> Unit
-   * }}}
-   * This means when `run` is invoked, the caller must provide all four capabilities.
-
-   * **Capability Propagation:**
-   * The business logic is identical - only the capability tracking has been added.
-   * But since each called function takes the capabilities implicitly, there is no need to given them names.
-   * The Scala compile will figure out which capability provided implicitly to `run` should be passed implicitly
-   * to which subsequent function call.
    */
   val run: RunType = {
     val lines        = readLines(FilePath)
@@ -189,23 +119,6 @@ object CapabilitiesVersion {
 
   /**
    * Object providing production implementations of all required capabilities.
-   *
-   * **Four Given Instances:**
-   * Each `given` provides an implementation of one capability trait:
-   *  - **ReadLines**: Lambda that reads from file using Java NIO
-   *  - **ReadNumber**: Lambda that reads from console and parses to Option[Int]
-   *  - **Print**: Lambda that prints to console using printf
-   *  - **WriteLines**: Lambda that writes to file using Java NIO
-   *
-   * **Lambda Implementations:**
-   * {{{
-   * given ReadLines = (path: Path) => Files.readAllLines(path).asScala.toList
-   * // This is shorthand for:
-   * given ReadLines = new ReadLines {
-   *   override def readLines(path: Path): List[String] =
-   *     Files.readAllLines(path).asScala.toList
-   * }
-   * }}}
    *
    * Scala allows this concise syntax when the trait has a single abstract method (SAM).
    */
@@ -220,8 +133,7 @@ object CapabilitiesVersion {
 
   /**
    * Entry point that runs the application with production capabilities.
-   *
-   * **Capability Resolution:**
+
    * 1. `System(run)` is called
    * 2. Because `apply` is `inline`, compiler expands it to just `run`, but the expansion happens in
    *    `System`'s scope where all givens are defined

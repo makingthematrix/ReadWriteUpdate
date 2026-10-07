@@ -5,53 +5,10 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}
 
-/**
- * Common utility object providing shared helper methods for Future-based versions.
- */
-object FutureVersion {
-  val FilePath: Path = Path.of("resources/protagonists.csv")
-
-  def readLines(path: Path): List[String] =
-    Files.readAllLines(path).asScala.toList
-
-  def askForUpdate(): Int = {
-    printf("By how much should I update the age? ")
-    val answer = scala.io.StdIn.readLine()
-    answer.toInt
-  }
-
-  def updateAge(p: Protagonist, n: Int): Protagonist = {
-    val newAge = p.age + n
-    println(s"The age of ${p.firstName} ${p.lastName} changes from ${p.age} to $newAge")
-    p.copy(age = newAge)
-  }
-
-  def writeLines(path: Path, lines: List[String]): Unit =
-    Files.writeString(path, lines.mkString("\n"))
-}
 
 /**
  * This is a version of the program that reads, updates, and writes protagonist
  * data using asynchronous computations with `Future` and blocking operation with `Await`.
- *
- * **Key Differences from DefaultVersion:**
- *  - **Parallel Execution**: File reading and user input happen simultaneously
- *  - **Blocking Wait**: Uses `Await.result` to block until Futures complete
- *  - **Error Handling**: Uses `Try` to catch timeouts and failures
- *
- * **Key Scala Features Demonstrated:**
- *  - **Future**: Represents a value that will be available in the future
- *  - **ExecutionContext**: Thread pool that executes Future tasks
- *  - **Future.zip**: Combines two Futures into one Future of a tuple
- *  - **Await.result**: Blocks until Future completes (or times out)
- *  - **Pattern Matching on Try**: Handle Success/Failure cases
- *
- * **What is a Future?**
- * A `Future[T]` represents a computation that will produce a value of type `T` at some point.
- * When you create a Future:
- *  1. The computation starts running on a background thread (from ExecutionContext)
- *  2. The main thread continues without waiting
- *  3. You can later get the result (blocking with Await or non-blocking with callbacks)
  */
 object FutureVersionWithAwait {
   import FutureVersion.*
@@ -121,4 +78,29 @@ object FutureVersionWithThreadPool {
     }
     resultFuture.onComplete(_ => threadPool.shutdown())
   }
+}
+
+/**
+ * Common utility object providing shared helper methods for Future-based versions.
+ */
+object FutureVersion {
+  val FilePath: Path = Path.of("resources/protagonists.csv")
+
+  def readLines(path: Path): List[String] =
+    Files.readAllLines(path).asScala.toList
+
+  def askForUpdate(): Int = {
+    printf("By how much should I update the age? ")
+    val answer = scala.io.StdIn.readLine()
+    answer.toInt
+  }
+
+  def updateAge(p: Protagonist, n: Int): Protagonist = {
+    val newAge = p.age + n
+    println(s"The age of ${p.firstName} ${p.lastName} changes from ${p.age} to $newAge")
+    p.copy(age = newAge)
+  }
+
+  def writeLines(path: Path, lines: List[String]): Unit =
+    Files.writeString(path, lines.mkString("\n"))
 }
