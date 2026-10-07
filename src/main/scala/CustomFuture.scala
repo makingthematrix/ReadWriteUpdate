@@ -44,8 +44,8 @@ object CustomFuture {
   def apply[T](code : => T)(using ec: ExecutionContext): CustomFuture[T] = {
     val cf = new CustomFuture[T]()
 
-    /** Immediately after creation, an instance of `CustomFuture` runs this code on the given execution context.
-     * It wraps the `code` function in a `Try`, runs it, gets the result, and completes the future with it.
+    /** Immediately after creating an instance of `CustomFuture`, we run this code on the given execution context.
+     * We wrap the `code` function in a `Try`, run it, get the result, and complete the future with it.
      * The `completeWith` function runs every function on the `onCompleted` list with the result as its parameter.
      */
     ec.execute(() => cf.completeWith(Try(code))) // can be also `new Runnable { ... }`
@@ -59,7 +59,7 @@ object CustomFuture {
    * A callback is registered to handle both success and failure cases of the computation.
    * The method ensures that the program runs for sufficient time to allow the computation to complete.
    */
-   /*@main*/ def main(): Unit = {
+  /* @main*/ def main(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val cf: CustomFuture[Int] = CustomFuture {

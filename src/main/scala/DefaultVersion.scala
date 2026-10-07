@@ -1,4 +1,5 @@
 import java.nio.file.{Files, Path}
+import scala.collection.parallel.{ParIterable, ParMap}
 import scala.jdk.CollectionConverters.*
 
 /**
@@ -47,10 +48,15 @@ object DefaultVersion {
    *  - **FutureVersion**: Same logic, but with concurrent execution
    *  - **DIVersion/GivenUsingVersion**: Same logic, but with testable abstractions
    */
-  /* @main */ def main(): Unit = {
+  def main(): Unit = {
+    val parmap = ParMap.newBuilder[Protagonist, Int]
     val lines        = readLines(FilePath)
     val protagonists = lines.map(Protagonist.fromLine)
+    parmap ++= protagonists.zipWithIndex
+    val pm = parmap.result()
     val n            = askForUpdate()
+    val pm2: ParIterable[Protagonist] = pm.map { (p, _) => updateAge(p, n) }
+    pm2.toSeq
     val updated      = protagonists.map(updateAge(_, n))
     val newLines     = updated.map(_.toLine)
     writeLines(FilePath, newLines)
@@ -106,7 +112,7 @@ object DefaultVersion {
    * @return the integer value entered by the user
    */
   private def askForUpdate(): Int = {
-    printf("By how much should I update the age? ")
+    print("By how much should I update the age? ")
     val answer = scala.io.StdIn.readLine()
     answer.toInt
   }

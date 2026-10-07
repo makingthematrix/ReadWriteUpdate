@@ -229,5 +229,5 @@ object CapabilitiesVersion {
    * 4. Passes them to `run` as context parameters
    * 5. `run` executes with real file/console I/O capabilities
    */
-  /* @main */ def main(): Unit = System(run)
+   @main  def main(): Unit = System(run)
 }

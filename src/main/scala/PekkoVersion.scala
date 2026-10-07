@@ -418,7 +418,7 @@ object PekkoVersion {
    * Await.result() blocks the main thread until the ActorSystem terminates itself
    * (after a delay, triggered by WriteOk).
    */
-  /* @main */ def main(): Unit = {
+   /*@main*/ def main(): Unit = {
     import PekkoVersion.Message.Start
 
     println("Pekko Version Start")

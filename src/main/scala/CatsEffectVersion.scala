@@ -99,12 +99,13 @@ object CatsEffectVersion extends IOApp.Simple {
    *
    * @return IO[Unit] A pure description of the program's effects
    */
+    
   override def run: IO[Unit] =
     for {
       lines        <- readLines(FilePath)
       protagonists =  lines.map(Protagonist.fromLine)
       n            <- askForUpdate
-      updated      <- protagonists.traverse(updateAge(_, n))
+      updated      <- protagonists.traverse(p => updateAge(p, n))
                       // `traverse` turns a collection "inside-out": `List[IO[A]]` becomes `IO[List[A]]`
       newLines     =  updated.map(_.toLine)
       _            <- writeLines(FilePath, newLines)
@@ -158,5 +159,5 @@ object CatsEffectVersion extends IOApp.Simple {
    * @return IO[Unit] A description of writing to the file
    */
   private def writeLines(path: Path, lines: List[String]): IO[Unit] =
-    IO { Files.writeString(path, lines.mkString("\n")) }
+    IO.blocking { Files.writeString(path, lines.mkString("\n")) }
 }

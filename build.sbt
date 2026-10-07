@@ -41,15 +41,17 @@ val scala3Options = Seq(
 lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.6.3",
+      "org.typelevel" %% "cats-effect" % "3.7.0",
       "org.slf4j" % "slf4j-simple" % "2.0.17",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0",
       "com.softwaremill.macwire" %% "macros" % "2.6.7" % Provided,
       "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
       "org.apache.pekko" %% "pekko-stream" % "1.4.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.22",
+      "ch.qos.logback" % "logback-classic" % "1.5.32",
+      "com.softwaremill.ox" %% "core" % "1.0.4",
+      "org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0",
       //Test dependencies
-      "org.scalameta" %% "munit" % "1.2.1" % Test
+      "org.scalameta" %% "munit" % "1.2.4" % Test
     ),
     scalacOptions ++= standardOptions ++ scala3Options
   )
