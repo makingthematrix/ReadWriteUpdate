@@ -1,5 +1,5 @@
 
-val _scalaVersion = "3.8.2"
+val _scalaVersion = "3.9.0"
 
 ThisBuild / version := "0.1.0"
 
@@ -41,17 +41,17 @@ val scala3Options = Seq(
 lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.7.0",
-      "org.slf4j" % "slf4j-simple" % "2.0.17",
+      "org.typelevel" %% "cats-effect" % "3.7.1",
+      "org.slf4j" % "slf4j-simple" % "2.0.20",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0",
       "com.softwaremill.macwire" %% "macros" % "2.6.7" % Provided,
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.4.0",
-      "org.apache.pekko" %% "pekko-stream" % "1.4.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.32",
-      "com.softwaremill.ox" %% "core" % "1.0.4",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.7.1",
+      "org.apache.pekko" %% "pekko-stream" % "1.7.1",
+      "ch.qos.logback" % "logback-classic" % "1.6.5",
+      "com.softwaremill.ox" %% "core" % "1.0.9",
       "org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0",
       //Test dependencies
-      "org.scalameta" %% "munit" % "1.2.4" % Test
+      "org.scalameta" %% "munit" % "1.3.6" % Test
     ),
     scalacOptions ++= standardOptions ++ scala3Options
   )

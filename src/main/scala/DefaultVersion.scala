@@ -1,5 +1,4 @@
 import java.nio.file.{Files, Path}
-import scala.collection.parallel.{ParIterable, ParMap}
 import scala.jdk.CollectionConverters.*
 
 /**
@@ -18,14 +17,9 @@ object DefaultVersion {
    * Entry point that orchestrates the read-update-write workflow.
    */
   def main(): Unit = {
-    val parmap = ParMap.newBuilder[Protagonist, Int]
     val lines        = readLines(FilePath)
     val protagonists = lines.map(Protagonist.fromLine)
-    parmap ++= protagonists.zipWithIndex
-    val pm = parmap.result()
     val n            = askForUpdate()
-    val pm2: ParIterable[Protagonist] = pm.map { (p, _) => updateAge(p, n) }
-    pm2.toSeq
     val updated      = protagonists.map(updateAge(_, n))
     val newLines     = updated.map(_.toLine)
     writeLines(FilePath, newLines)
